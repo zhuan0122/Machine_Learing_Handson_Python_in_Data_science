@@ -1,0 +1,24 @@
+# split function to split the string and when we pick the parameters in the string,we use []not()
+#as why we could connect a () behind the split,please see the document of slpit of a string 
+#http://www.codeskulptor.org/docs.html#string-split
+a='Dr. Christopher Brooks'
+a.split()
+-['Dr.', 'Christopher', 'Brooks']
+a.split()[0]
+-'Dr.'
+
+
+# map function, map is a perticaular function that could use to interation in another function 
+#Applies the user-defined function to the elements of the iterable an_iter, and returns a list of the results. The ith element of the returned list is function(an_iteriter1[<var>i</var>], &hellip).
+# map(function, an_iter)
+#http://www.codeskulptor.org/docs.html#iter-map
+# example 
+#name list 
+people=people = ['Dr. Christopher Brooks', 'Dr. Kevyn Collins-Thompson', 'Dr. VG Vinod Vydiswaran', 'Dr. Daniel Romero']
+# define a function to get a list of all faculty titles and last names 
+def split_title_and_name(person):
+    title=person.split()[0]
+    last_name=person.split()[-1]
+    return '{}{} '.format(title, last_name)
+list(map(split_title_and_name,people)) # Converts any iterable or iterator into a list
+['Dr. Brooks ', 'Dr. Collins-Thompson ', 'Dr. Vydiswaran ', 'Dr. Romero ']
