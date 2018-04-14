@@ -1,0 +1,102 @@
+
+# coding: utf-8
+
+# In[1]:
+
+
+def add_numbers(x,y,z):
+        return x+y+z
+print(add_numbers(1, 2, 3))
+
+
+# In[13]:
+
+
+x = {'Christopher Brooks': 'brooksch@umich.edu', 'Bill Gates': 'billg@microsoft.com'}
+x['Christopher Brooks'] # Retrieve a value by using the indexing operator
+
+
+# In[14]:
+
+
+x['huanzhang']=None 
+x['huanzhang']
+
+
+# In[15]:
+
+
+for name in x:
+    print(x[name])
+
+
+# In[16]:
+
+
+for email in x.values():
+    print(email)
+    
+
+
+# In[17]:
+
+
+for name, email in x.items():
+    print(name)
+    print(email)
+
+
+# In[18]:
+
+
+#Make sure the number of values you are unpacking matches the number of variables being assigned
+# if there is four items in x but you only give three return name then it will show something wrong
+x = ('Christopher', 'Brooks', 'brooksch@umich.edu', 'Ann Arbor')
+fname, lname, email, name= x
+
+
+# In[7]:
+
+
+fname
+
+
+# In[8]:
+
+
+name
+
+
+# In[9]:
+
+
+email
+
+
+# In[10]:
+
+
+#split returns a list of all the words in a string, or a list split on a specific character.
+firstname = 'Christopher Arthur Hansen Brooks'.split(' ')[0] # [0] selects the first element of the list
+lastname = 'Christopher Arthur Hansen Brooks'.split(' ')[-1] # [-1] selects the last element of the list
+print(firstname)
+print(lastname)
+
+
+# In[19]:
+
+
+#using format function:Python has a built in method for convenient string formatting.
+
+sales_record = {
+'price': 3.24,
+'num_items': 4,
+'person': 'Chris'}
+
+sales_statement = '{} bought {} item(s) at a price of {} each for a total of {}'
+
+print(sales_statement.format(sales_record['person'],
+                             sales_record['num_items'],
+                             sales_record['price'],
+                             sales_record['num_items']*sales_record['price']))
+
