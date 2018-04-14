@@ -1,0 +1,86 @@
+
+# coding: utf-8
+
+# In[2]:
+
+
+#import related packages but there is a change in data scraping in yahoo. the api is updated 
+import pandas as pd
+import pandas_datareader.data as web
+import datetime
+
+# define the expected data in dictionary
+gafataDict={'谷歌':'GOOG','亚马逊':'AMZN','Facebook':'FB','苹果':'AAPL','阿里巴巴':'BABA','腾讯':'0700.hk'}
+
+#define time for data scraping 
+start = datetime.datetime(2017, 1, 1)
+end = datetime.datetime(2018, 1, 1)
+
+# get data 
+babaDf=web.DataReader(gafataDict['阿里巴巴'],'iex',start,end)
+#show the first-five-line data
+babaDf.dtypes
+babaDf.head()
+babaDf.describe()
+
+
+# In[2]:
+
+
+# define the function to count the fluctuation of stock
+def change(column):
+    buyprice=column[0]
+    crprice=column[251-1]
+    pricechange=(crprice-buyprice)/buyprice
+    
+    if (pricechange>0):
+        print('stock is in bulish ',pricechange)
+
+    elif(pricechange<0):
+        print('stock plummets ',pricechange)
+    else:
+        print('stock is hold on ',pricechange)
+    return pricechange
+closoclu=babaDf['close']
+babachange=change(closoclu)
+
+
+
+
+# In[41]:
+
+
+
+print(babaDf.index[0])
+
+
+# In[3]:
+
+
+import matplotlib 
+import matplotlib.pyplot as plt
+#import datetime as dt
+#dates = babaDf.index
+#x = [dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates]
+
+plt.plot(babaDf['close'])
+plt.title('BABA')
+plt.grid(True)
+plt.show()
+
+
+# In[4]:
+
+
+import matplotlib
+import matplotlib.pyplot as plt
+x=babaDf.index
+y='close'
+
+babaDf.plot(x,y)
+#图片标题
+plt.title('BABA')
+#显示网格
+plt.grid(True)
+plt.show()
+
