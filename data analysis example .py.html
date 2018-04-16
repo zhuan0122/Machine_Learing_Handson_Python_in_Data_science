@@ -1,0 +1,516 @@
+
+# coding: utf-8
+
+# In[6]:
+
+
+# we could define the data as dictionary and then import them as dataframe. but we also need to 
+# read excel data and these excel data will be regarded as dataframe 
+#读取Ecxcel数据
+# first we need to input'conda install xlrd ' in terminal to install xlrd 
+# then copy the file path according to your own computer 
+import pandas as pd
+fileNameStr='/Users/zhanghuan/第4关数据分析的基本过程/朝阳医院2018年销售数据.xlsx'
+xls = pd.ExcelFile(fileNameStr,dtype='object')
+salesDf = xls.parse('Sheet1',dtype='object')
+
+
+# In[7]:
+
+
+salesDf.head()
+
+
+# In[8]:
+
+
+type(salesDf)
+
+
+# In[9]:
+
+
+salesDf.dtypes
+
+
+# In[10]:
+
+
+salesDf.shape# check total rows and columns 
+
+
+# In[11]:
+
+
+# check this column data's type
+salesDf.loc[:,'销售数量'].dtype
+
+
+# In[12]:
+
+
+salesDf.describe()
+
+
+# In[13]:
+
+
+# different with array,when we read and get the data, we need to use iloc or loc, ans iloc in loaction 
+#loc in idex, here if you use loc,it will show error.
+salesDf.iloc[0:5,0:5] 
+
+
+# In[14]:
+
+
+#通过条件判断筛选
+#第1步：构建查询条件
+querySer=salesDf.loc[:,'销售数量']>2
+
+
+# In[15]:
+
+
+type(querySer)# queryser returns the one dimension array
+
+
+# In[15]:
+
+
+querySer
+
+
+# In[18]:
+
+
+# returns the qualified value data
+salesDf.loc[querySer,:]
+
+
+# In[16]:
+
+
+#1) select the required data range using slicing function 
+# in this case, we need all of data.but we need to know to select data by slicing 
+
+
+# In[17]:
+
+
+#2) rename the column name 
+
+
+# In[18]:
+
+
+# define a dic to set the old name and new name,old name at left,new name at right
+colNameDict = {'购药时间':'销售时间'}
+
+'''
+inplace=False，数据框本身不会变，而会创建一个改动后新的数据框，
+默认的inplace是False
+inplace=True，数据框本身会改动
+'''
+salesDf.rename(columns = colNameDict,inplace=True)
+salesDf
+
+
+# In[19]:
+
+
+salesDf.head()
+
+
+# In[20]:
+
+
+# 3.cope with the deficient data
+#python缺失值有3种：
+#1）Python内置的None值
+#2）在pandas中，将缺失值表示为NA，表示不可用not available。
+#3）对于数值数据，pandas使用浮点值NaN（Not a Number）表示缺失数据。
+#后面出来数据，如果遇到错误：说什么foloat错误，那就是有缺失值，需要处理掉
+#所以，缺失值有3种：None，NA，NaN
+#https://pandas.pydata.org/pandas-docs/stable/whatsnew.html---reference document
+print('删除缺失值前大小',salesDf.shape)
+
+
+# In[21]:
+
+
+#删除列（销售时间，社保卡号）中为空的行/delete the none value in these two columns 
+#how='any' 在给定的任何一列中有缺失值就删除  delete the none value at any given column
+salesDf=salesDf.dropna(subset=['销售时间','社保卡号'],how='any')
+
+
+# In[22]:
+
+
+print('删除缺失值后大小',salesDf.shape)
+
+
+# In[23]:
+
+
+#4) convert the data type
+#convert the string to float,usig astype function
+salesDf['销售数量'] = salesDf['销售数量'].astype('float')
+salesDf['应收金额'] = salesDf['应收金额'].astype('float')
+salesDf['实收金额'] = salesDf['实收金额'].astype('float')
+print('转换后的数据类型：\n',salesDf.dtypes)
+'''
+运行后，会报警告SettingWithCopyWarning
+一般信息有两列，一类是Warning警告信息，一类是Error错误信息。
+警告的信息不用管，我们只关注错误类型的信息
+'''
+
+
+# In[24]:
+
+
+salesDf.head()
+
+
+# In[46]:
+
+
+# convert the string to date type
+
+
+# In[26]:
+
+
+# 1.we use split function to saperate the data and get the part we want
+testList='2018-06-03 星期五'.split(' ') # it will be split when it meets the space
+
+
+testList
+
+
+# In[27]:
+
+
+testList[0]
+
+
+# In[47]:
+
+
+
+salesDf.head()
+
+
+# In[ ]:
+
+
+# before we split all data we need to delete the none value 
+
+
+# In[29]:
+
+
+salesDf=salesDf.dropna(subset=['销售时间'],how='any')
+
+
+# In[45]:
+
+
+salesDf.head()
+
+
+# In[31]:
+
+
+'''
+define a function to split data time
+input of the function: timeColser, it is a column and series data
+output: return a series datatype 
+'''
+def splitSaletime(timeColSer):
+    timeList=[]
+    for value in timeColSer:
+        #例如2018-01-01 星期五，分割后为：2018-01-01,' ' 表明遇见空格就分割
+        dateStr=value.split(' ')[0]
+        timeList.append(dateStr)
+    
+    #将列表转行为一维数据Series类型
+    timeSer=pd.Series(timeList)
+    return timeSer
+
+#获取“销售时间”这一列
+timeSer=salesDf.loc[:,'销售时间']
+#对字符串进行分割，获取销售日期
+# call function splitSaletime and save the data into dateSer
+dateSer=splitSaletime(timeSer)
+'''
+注意：
+如果运行后报错：AttributeError: 'float' object has no attribute 'split'
+是因为Excel中的空的cell读入pandas中是空值（NaN），这个NaN是个浮点类型，一般当作空值处理。
+所以要先去除NaN在进行分隔字符串
+'''
+
+
+# In[38]:
+
+
+dateSer.head()
+
+
+# In[33]:
+
+
+#那None和NaN有什么区别呢：
+#None是Python的一种数据类型，NaN是浮点类型 两个都用作空值
+
+
+# In[34]:
+
+
+#None和NaN的区别
+print('None的数据类型',type(None))
+from numpy import NaN
+print('NaN的数据类型',type(NaN))
+
+
+# In[35]:
+
+
+#修改销售时间这一列的值
+salesDf.loc[:,'销售时间']=dateSer
+
+
+# In[37]:
+
+
+salesDf.head()
+
+
+# In[42]:
+
+
+salesDf.dtypes
+
+
+# In[43]:
+
+
+# so the sale time is still object type,we want to change it to data time type 
+# we just split it above
+'''
+here we change string to data time through pandas's to_datetime function
+'''
+#errors='coerce' if the original data is not datetime,then return the none 如果原始数据不符合日期的格式，转换后的值为空值NaT
+#format is the original type of your data 是你原始数据中日期的格式
+salesDf.loc[:,'销售时间']=pd.to_datetime(salesDf.loc[:,'销售时间'],
+                                    format='%Y-%m-%d', 
+                                    errors='coerce')
+
+
+# In[44]:
+
+
+salesDf.dtypes # now it changes to datetime 
+
+
+# In[48]:
+
+
+#5.数据排序
+
+
+# In[49]:
+
+
+print('排序前的数据集')
+salesDf.head()
+
+
+# In[51]:
+
+
+'''
+by：按哪几列排序 by+ which columns we want to arrange 
+ascending=True 表示升序排列，arrange the data from smaller to bigger one 
+ascending=False表示降序排列 arrange the data from big to small
+'''
+#按销售日期进行升序排列
+salesDf=salesDf.sort_values(by='销售时间',
+                    ascending=True)
+salesDf.head(3)
+
+
+# In[52]:
+
+
+# when we rearrange this we also need to reset the index as sequence 
+salesDf=salesDf.reset_index(drop=True)
+salesDf.head()
+
+
+# In[53]:
+
+
+# last step of data cleaning 
+# when use describe to see the data we see that there is one informal data -10 
+# we need to delete it 
+salesDf.describe()
+
+
+# In[55]:
+
+
+#删除异常值：通过条件判断筛选出数据
+#查询条件
+# we use the if function to select the data and eliminate the wrong data
+queryser=salesDf.loc[:,'销售数量']>0
+#应用查询条件
+print('删除异常值前：',salesDf.shape)
+salesDf=salesDf.loc[queryser,:]
+print('删除异常值后：',salesDf.shape)
+
+
+# In[ ]:
+
+
+# until now we finish all the steps of data cleaning 
+
+
+# In[56]:
+
+
+# build model 
+
+
+# In[67]:
+
+
+'''
+总消费次数：同一天内，同一个人发生的所有消费算作一次消费
+#根据列名（销售时间，社区卡号），如果这两个列值同时相同，只保留1条，将重复的数据删除
+'''
+## very important here: before we do calculation we need to clear the data:delete the none value and 
+# change data to datetime
+salesDf=salesDf.dropna(subset=['销售时间'],how='any')
+salesDf.loc[:,'销售时间']=pd.to_datetime(salesDf.loc[:,'销售时间'],
+                                    format='%Y-%m-%d', 
+                                    errors='coerce')
+kpi1_Df=salesDf.drop_duplicates(
+    subset=['销售时间', '社保卡号']
+)
+
+#总消费次数：有多少行
+totalI=kpi1_Df.shape[0]
+
+print('总消费次数=',totalI)
+
+
+# In[68]:
+
+
+'''
+计算月份数：时间范围
+'''
+#第1步：按销售时间升序排序, 使用 sort_values,ascending 
+kpi1_Df=kpi1_Df.sort_values(by='销售时间',
+                    ascending=True)
+#重命名行名（index）,reset_index 
+kpi1_Df=kpi1_Df.reset_index(drop=True)
+
+
+# In[69]:
+
+
+kpi1_Df.head(3)
+
+
+# In[70]:
+
+
+
+#第2步：获取时间范围
+#最小时间值
+startTime=kpi1_Df.loc[0,'销售时间']
+#最大时间值
+endTime=kpi1_Df.loc[totalI-1,'销售时间']
+
+#第3步：计算月份数
+#天数
+daysI=(endTime-startTime).days
+#月份数: 运算符“//”表示取整除 
+#返回商的整数部分，例如9//2 输出结果是4,与/不一样
+
+
+# In[73]:
+
+
+# notice when we run this and show nan,it means that there none value so we need to delete them
+#use dropna and also change the date to datetime type then we could apply the minus calculation
+# but we do this at the beginning 
+monthsI=daysI//30
+print('月份数：',monthsI)
+
+
+# In[74]:
+
+
+#业务指标1：月均消费次数=总消费次数 / 月份数
+kpi1_I=totalI // monthsI
+print('业务指标1：月均消费次数=',kpi1_I)
+
+
+# In[75]:
+
+
+#总消费金额
+totalMoneyF=salesDf.loc[:,'实收金额'].sum()
+#月均消费金额
+monthMoneyF=totalMoneyF / monthsI
+print('业务指标2：月均消费金额=',monthMoneyF)
+
+
+# In[76]:
+
+
+'''
+totalMoneyF：总消费金额
+totalI：总消费次数
+'''
+pct=totalMoneyF / totalI
+print('客单价：',pct)
+
+
+# In[77]:
+
+
+#在进行操作之前，先把数据复制到另一个数据框中，防止对之前清洗后的数据框造成影响
+groupDf=salesDf
+#第1步：重命名行名（index）为销售时间所在列的值
+groupDf.index=groupDf['销售时间']
+groupDf.head()
+
+
+# In[78]:
+
+
+#第2步：分组
+gb=groupDf.groupby(groupDf.index.month)
+
+
+# In[79]:
+
+
+gb
+
+
+# In[80]:
+
+
+#第3步：应用函数，计算每个月的消费总额
+mounthDf=gb.sum()
+
+
+# In[81]:
+
+
+mounthDf
+
