@@ -1,2 +1,2 @@
 # Machine_Learing_Handson_Python_in_Data_science
-recording the issues and notes during my process of python learning 
+Codes and notes for machine learning handson with Python for Data science. Includes Data processing, Machine learning models building for data scicence: Regression, Calssification, Cluster,Reinforcement learning, Naturanl language processing, Deep learning, Model selection...
